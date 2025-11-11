@@ -29,11 +29,11 @@
 
 ### 4. 验收标准 (Acceptance Criteria)
 
--   [ ] **标准 1**: 当用户在前端输入抖音、快手或小宇宙 FM 的链接时，系统应立即提示“暂不支持该视频平台或链接格式无效”。
--   [ ] **标准 2**: 后端代码库中不再存在 `douyin_downloader.py`, `kuaishou_downloader.py`, `xiaoyuzhoufm_download.py` 以及它们的辅助目录 (`douyin_helper`, `kuaishou_helper`)。
--   [ ] **标准 3**: `video_url_validator.py` 中的 `SUPPORTED_PLATFORMS` 字典不再包含 `douyin` 和 `kuaishou`。
--   [ ] **标准 4**: 前端设置页面或其他 UI 界面上，不再出现“抖音”、“快手”、“小宇宙”等字样或图标。
--   [ ] **标准 5**: 提交包含抖音或快手链接的请求到 `/api/note/generate` 接口时，应返回 4xx 客户端错误，并附带明确的错误信息。
+-   [x] **标准 1**: 当用户在前端输入抖音、快手或小宇宙 FM 的链接时，系统应立即提示"暂不支持该视频平台或链接格式无效"。
+-   [x] **标准 2**: 后端代码库中不再存在 `douyin_downloader.py`, `kuaishou_downloader.py`, `xiaoyuzhoufm_download.py` 以及它们的辅助目录 (`douyin_helper`, `kuaishou_helper`)。
+-   [x] **标准 3**: `video_url_validator.py` 中的 `SUPPORTED_PLATFORMS` 字典不再包含 `douyin` 和 `kuaishou`。
+-   [x] **标准 4**: 前端设置页面或其他 UI 界面上，不再出现"抖音"、"快手"、"小宇宙"等字样或图标。
+-   [x] **标准 5**: 提交包含抖音或快手链接的请求到 `/api/note/generate` 接口时，应返回 4xx 客户端错误，并附带明确的错误信息。
 
 ### 5. 关键约束与依赖 (Constraints & Dependencies)
 

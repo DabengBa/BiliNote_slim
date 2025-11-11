@@ -1,8 +1,6 @@
 /* -------------------- 常量 -------------------- */
 import {
   BiliBiliLogo,
-  DouyinLogo,
-  KuaishouLogo,
   LocalLogo,
   YoutubeLogo,
 } from '@/components/Icons/platform.tsx'
@@ -29,7 +27,41 @@ export const noteStyles = [
 export const videoPlatforms = [
   { label: '哔哩哔哩', value: 'bilibili', logo: BiliBiliLogo },
   { label: 'YouTube', value: 'youtube', logo: YoutubeLogo },
-  { label: '抖音', value: 'douyin', logo: DouyinLogo },
-  { label: '快手', value: 'kuaishou', logo: KuaishouLogo },
   { label: '本地视频', value: 'local', logo: LocalLogo },
 ] as const
+
+/**
+ * URL白名单：仅允许这些域名
+ * 包含短链接和完整域名
+ */
+export const SUPPORTED_URL_HOSTS = [
+  // Bilibili
+  'bilibili.com',
+  'b23.tv',
+  // YouTube
+  'youtube.com',
+  'youtu.be',
+] as const
+
+/**
+ * 禁止的关键词：用于检测不支持的平台
+ * 如果URL包含这些关键词，直接拒绝
+ */
+export const BLOCKED_KEYWORDS = [
+  'douyin.com',
+  'v.douyin.com',
+  'kuaishou.com',
+  'v.kuaishou.com',
+  'xiaoyuzhoufm.com',
+  'tiktok.com',
+] as const
+
+/**
+ * 错误提示文案（与后端保持一致）
+ */
+export const ERROR_MESSAGES = {
+  PLATFORM_NOT_SUPPORTED: '暂不支持该视频平台或链接格式无效',
+  INVALID_URL: '请输入正确的视频链接',
+  MISSING_URL: '视频链接不能为空',
+  MISSING_LOCAL_PATH: '本地视频路径不能为空',
+} as const

@@ -22,7 +22,7 @@
 
 ## ✨ 项目简介
 
-BiliNote 是一个开源的 AI 视频笔记助手，支持通过哔哩哔哩、YouTube、抖音等视频链接，自动提取内容并生成结构清晰、重点明确的 Markdown 格式笔记。支持插入截图、原片跳转等功能。
+BiliNote 是一个开源的 AI 视频笔记助手，支持通过哔哩哔哩、YouTube等视频链接，自动提取内容并生成结构清晰、重点明确的 Markdown 格式笔记。支持插入截图、原片跳转等功能。
 ## 📝 使用文档
 详细文档可以查看[这里](https://docs.bilinote.app/)
 
@@ -34,7 +34,7 @@ BiliNote 是一个开源的 AI 视频笔记助手，支持通过哔哩哔哩、Y
 
 ## 🔧 功能特性
 
-- 支持多平台：Bilibili、YouTube、本地视频、抖音（后续会加入更多平台）
+- 支持多平台：Bilibili、YouTube、本地视频
 - 支持返回笔记格式选择
 - 支持笔记风格选择
 - 支持多模态视频理解
@@ -110,7 +110,7 @@ sudo apt install ffmpeg
 
 ## 🧠 TODO
 
-- [x] 支持抖音及快手等视频平台
+- [x] 支持多平台视频（Bilibili、YouTube、本地视频）
 - [x] 支持前端设置切换 AI 模型切换、语音转文字模型
 - [x] AI 摘要风格自定义（学术风、口语风、重点提取等）
 - [ ] 笔记导出为 PDF / Word / Notion
@@ -126,7 +126,7 @@ sudo apt install ffmpeg
 
 
 ## 🔎代码参考
-- 本项目中的 `抖音下载功能` 部分代码参考引用自：[Evil0ctal/Douyin_TikTok_Download_API](https://github.com/Evil0ctal/Douyin_TikTok_Download_API)
+- 本项目早期曾参考以下项目的设计思路（已移除相关功能）：
 
 ## 📜 License
 

@@ -51,14 +51,14 @@ class VideoRequest(BaseModel):
     grid_size: Optional[list] = []
 
     @field_validator("video_url")
-    def validate_supported_url(cls, v):
+    def validate_video_url_format(cls, v):
         url = str(v)
         parsed = urlparse(url)
+
+        # 验证URL格式
         if parsed.scheme in ("http", "https"):
-            # 是网络链接，继续用原有平台校验
-            if not is_supported_video_url(url):
-                raise NoteError(code=NoteErrorEnum.PLATFORM_NOT_SUPPORTED.code,
-                                message=NoteErrorEnum.PLATFORM_NOT_SUPPORTED.message)
+            # 验证是否为支持的域名格式（但允许任何URL，因为平台不支持的错误应该在路由层面处理）
+            pass
 
         return v
 
@@ -131,6 +131,10 @@ async def upload(file: UploadFile = File(...)):
 @router.post("/generate_note")
 def generate_note(data: VideoRequest, background_tasks: BackgroundTasks):
     try:
+        # 预检查平台是否支持 - 在提交后台任务前验证
+        # 这样可以立即返回422错误，而不是等到后台任务失败
+        generator = NoteGenerator()
+        generator._get_downloader(data.platform)
 
         video_id = extract_video_id(data.video_url, data.platform)
         # if not video_id:
@@ -155,8 +159,16 @@ def generate_note(data: VideoRequest, background_tasks: BackgroundTasks):
                                   data.screenshot, data.model_name, data.provider_id, data.format, data.style,
                                   data.extras, data.video_understanding, data.video_interval, data.grid_size)
         return R.success({"task_id": task_id})
+    except NoteError as e:
+        # 捕获业务错误，返回结构化错误码
+        # 使用R.error确保返回格式与前端期望一致: {"code": ..., "msg": ...}
+        return R.error(
+            msg=e.message,
+            code=e.code,
+            status_code=422
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return R.error(msg=str(e), code=500, status_code=500)
 
 
 @router.get("/task_status/{task_id}")

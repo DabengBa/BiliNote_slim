@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-BiliNote v1.8.1 是一个开源的 AI 视频笔记生成工具，支持通过哔哩哔哩、YouTube、抖音等视频链接，自动提取内容并生成结构清晰、重点明确的 Markdown 格式笔记。
+BiliNote v1.8.1 是一个开源的 AI 视频笔记生成工具，支持通过哔哩哔哩、YouTube等视频链接，自动提取内容并生成结构清晰、重点明确的 Markdown 格式笔记。
 
 ## 技术栈
 
 - **后端**: FastAPI (Python) + SQLite + SQLAlchemy
 - **前端**: React 19 + TypeScript + Vite + TailwindCSS
 - **AI 模型**: OpenAI / DeepSeek / Qwen / Groq
-- **音频转录**: Fast-Whisper / BCUT / Kuaishou / MLX-Whisper / Groq
+- **音频转录**: Fast-Whisper / BCUT / MLX-Whisper / Groq
 - **视频下载**: yt-dlp + 自定义下载器
 - **部署**: Docker + Docker Compose + Nginx
 - **桌面应用**: Tauri (Rust + 前端)
@@ -45,8 +45,8 @@ BiliNote v1.8.1 是一个开源的 AI 视频笔记生成工具，支持通过哔
 │   │   │   └── transcriber_provider.py
 │   │   ├── downloaders/       # 视频下载器
 │   │   │   ├── bilibili_downloader.py
-│   │   │   ├── douyin_downloader.py
-│   │   │   ├── kuaishou_downloader.py
+│   │   │   ├── youtube_downloader.py
+│   │   │   ├── local_downloader.py
 │   │   │   └── base.py        # 下载器基类
 │   │   ├── utils/             # 工具函数
 │   │   └── validators/        # 数据验证
@@ -162,7 +162,7 @@ VITE_API_BASE_URL=http://127.0.0.1:8483
 VITE_SCREENSHOT_BASE_URL=http://127.0.0.1:8483/static/screenshots
 
 # 转录器配置
-TRANSCRIBER_TYPE=fast-whisper  # fast-whisper/bcut/kuaishou/mlx-whisper/groq
+TRANSCRIBER_TYPE=fast-whisper  # fast-whisper/bcut/mlx-whisper(仅Apple平台)/groq
 WHISPER_MODEL_SIZE=base        # 模型大小
 GROQ_TRANSCRIBER_MODEL=whisper-large-v3-turbo
 

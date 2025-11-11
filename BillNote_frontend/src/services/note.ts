@@ -15,30 +15,13 @@ export const generateNote = async (data: {
   video_interval?: number
   grid_size: Array<number>
 }) => {
-  try {
-    console.log('generateNote', data)
-    const response = await request.post('/generate_note', data)
+  console.log('generateNote', data)
+  const response = await request.post('/generate_note', data)
 
-    if (!response) {
-      if (response.data.msg) {
-        toast.error(response.data.msg)
-      }
-      return null
-    }
-    toast.success('笔记生成任务已提交！')
+  toast.success('笔记生成任务已提交！')
+  console.log('res', response)
 
-    console.log('res', response)
-    // 成功提示
-
-    return response
-  } catch (e: any) {
-    console.error('❌ 请求出错', e)
-
-    // 错误提示
-    // toast.error('笔记生成失败，请稍后重试')
-
-    throw e // 抛出错误以便调用方处理
-  }
+  return response
 }
 
 export const delete_task = async ({ video_id, platform }) => {

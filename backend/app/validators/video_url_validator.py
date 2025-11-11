@@ -5,25 +5,27 @@ from urllib.parse import urlparse
 SUPPORTED_PLATFORMS = {
     "bilibili": r"(https?://)?(www\.)?bilibili\.com/video/[a-zA-Z0-9]+",
     "youtube": r"(https?://)?(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[\w\-]+",
-    "douyin": "douyin",
-    "kuaishou": "kuaishou"
 }
 
 
 def is_supported_video_url(url: str) -> bool:
+    # 如果没有协议头，添加http://以便urlparse正确解析
+    if not url.startswith(('http://', 'https://')):
+        url = 'http://' + url
+
     parsed = urlparse(url)
 
     # 检查是否为Bilibili的短链接
     if parsed.netloc == "b23.tv":
         return True
 
+    # 检查是否为YouTube短链接
+    if parsed.netloc == "youtu.be":
+        return True
+
     for name, pattern in SUPPORTED_PLATFORMS.items():
-        if pattern in ["douyin", "kuaishou"]:
-            if pattern in url:
-                return True
-        else:
-            if re.match(pattern, url):
-                return True
+        if re.match(pattern, url):
+            return True
     return False
 
 

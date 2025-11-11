@@ -36,7 +36,14 @@ import {
 } from '@/components/ui/select.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import { Textarea } from '@/components/ui/textarea.tsx'
-import { noteStyles, noteFormats, videoPlatforms } from '@/constant/note.ts'
+import {
+  noteStyles,
+  noteFormats,
+  videoPlatforms,
+  SUPPORTED_URL_HOSTS,
+  BLOCKED_KEYWORDS,
+  ERROR_MESSAGES,
+} from '@/constant/note.ts'
 import { fetchModels } from '@/services/model.ts'
 import { useNavigate } from 'react-router-dom'
 
@@ -62,21 +69,57 @@ const formSchema = z
   .superRefine(({ video_url, platform }, ctx) => {
     if (platform === 'local') {
       if (!video_url) {
-        ctx.addIssue({ code: 'custom', message: '本地视频路径不能为空', path: ['video_url'] })
+        ctx.addIssue({ code: 'custom', message: ERROR_MESSAGES.MISSING_LOCAL_PATH, path: ['video_url'] })
       }
     }
     else {
       if (!video_url) {
-        ctx.addIssue({ code: 'custom', message: '视频链接不能为空', path: ['video_url'] })
+        ctx.addIssue({ code: 'custom', message: ERROR_MESSAGES.MISSING_URL, path: ['video_url'] })
       }
       else {
+        // 1. 验证URL格式
         try {
           const url = new URL(video_url)
-          if (!['http:', 'https:'].includes(url.protocol))
-            throw new Error()
+          if (!['http:', 'https:'].includes(url.protocol)) {
+            ctx.addIssue({ code: 'custom', message: ERROR_MESSAGES.INVALID_URL, path: ['video_url'] })
+            return
+          }
         }
         catch {
-          ctx.addIssue({ code: 'custom', message: '请输入正确的视频链接', path: ['video_url'] })
+          ctx.addIssue({ code: 'custom', message: ERROR_MESSAGES.INVALID_URL, path: ['video_url'] })
+          return
+        }
+
+        // 2. 检查是否为支持的域名
+        const url = new URL(video_url)
+        const hostname = url.hostname.toLowerCase()
+
+        // 检查是否在白名单中
+        const isSupportedHost = SUPPORTED_URL_HOSTS.some(host => {
+          // 支持完整域名或子域名
+          return hostname === host || hostname.endsWith(`.${host}`)
+        })
+
+        if (!isSupportedHost) {
+          // 3. 检查是否包含禁止的关键词（作为兜底）
+          const isBlockedUrl = BLOCKED_KEYWORDS.some(keyword =>
+            video_url.toLowerCase().includes(keyword.toLowerCase())
+          )
+
+          if (isBlockedUrl) {
+            ctx.addIssue({
+              code: 'custom',
+              message: ERROR_MESSAGES.PLATFORM_NOT_SUPPORTED,
+              path: ['video_url']
+            })
+          } else {
+            // 不在白名单且不在黑名单，可能是用户输入了其他平台的链接
+            ctx.addIssue({
+              code: 'custom',
+              message: ERROR_MESSAGES.PLATFORM_NOT_SUPPORTED,
+              path: ['video_url']
+            })
+          }
         }
       }
     }
@@ -228,9 +271,15 @@ const NoteForm = () => {
       return
     }
 
-    // message.success('已提交任务')
-    const  data  = await generateNote(payload)
-    addPendingTask(data.task_id, values.platform, payload)
+    try {
+      // message.success('已提交任务')
+      const  data  = await generateNote(payload)
+      addPendingTask(data.task_id, values.platform, payload)
+    } catch (e: any) {
+      // 错误已经被 request 拦截器显示，这里不需要额外处理
+      // 只需要防止错误继续传播
+      console.error('表单提交失败:', e)
+    }
   }
   const onInvalid = (errors: FieldErrors<NoteFormValues>) => {
     console.warn('表单校验失败：', errors)
@@ -274,7 +323,10 @@ const NoteForm = () => {
           <FormButton></FormButton>
 
           {/* 视频链接 & 平台 */}
-          <SectionHeader title="视频链接" tip="支持 B 站、YouTube 等平台" />
+          <SectionHeader
+            title="视频链接"
+            tip="支持：哔哩哔哩（bilibili.com、b23.tv）、YouTube（youtube.com、youtu.be）、本地上传。暂不支持抖音、快手、小宇宙等平台"
+          />
           <div className="flex gap-2">
             {/* 平台选择 */}
 
