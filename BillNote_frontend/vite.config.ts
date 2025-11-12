@@ -24,12 +24,12 @@ export default defineConfig(({ mode }) => {
       allowedHosts: true, // 允许任意域名访问
       proxy: {
         '/api': {
-          target: apiBaseUrl,
+          target: 'http://localhost:8000',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, '/api'),
         },
         '/static': {
-          target: apiBaseUrl,
+          target: 'http://localhost:8000',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/static/, '/static'),
         },

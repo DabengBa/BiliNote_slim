@@ -12,6 +12,7 @@ export interface IResponse<T = any> {
 // This function simulates a message display (in real projects, you'd use a UI library's component)
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
+console.log('环境变量VITE_API_BASE_URL:', baseURL);
 
 // 创建实例
  const request: AxiosInstance = axios.create({

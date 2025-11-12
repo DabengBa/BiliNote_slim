@@ -64,7 +64,29 @@ cd BiliNote
 mv .env.example .env
 ```
 
-### 2. 启动后端（FastAPI）
+### 2. 配置环境变量
+
+编辑 `.env` 文件，配置必要的环境变量：
+
+```bash
+# 后端配置
+API_HOST=0.0.0.0
+API_PORT=8000
+
+# 数据库配置（默认使用SQLite，无需额外配置）
+
+# 模型配置
+# OpenAI API 配置（使用OpenAI模型时需要）
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_API_BASE=your_api_base_url
+
+# 本地模型配置（使用本地模型时需要）
+WHISPER_MODEL=base  # 可选：tiny, base, small, medium, large
+```
+
+### 3. 启动后端（FastAPI）
+
+#### 方式一：直接启动
 
 ```bash
 cd backend
@@ -72,15 +94,111 @@ pip install -r requirements.txt
 python main.py
 ```
 
-### 3. 启动前端（Vite + React）
+#### 方式二：使用虚拟环境启动（推荐）
+
+```bash
+# Windows
+cd backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python main.py
+
+# macOS/Linux
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python main.py
+```
+
+### 4. 启动前端（Vite + React）
 
 ```bash
 cd BillNote_frontend
-pnpm install
-pnpm dev
+# 安装依赖
+pnpm install  # 或 npm install 或 yarn install
+# 启动开发服务器
+pnpm dev  # 或 npm run dev 或 yarn dev
 ```
 
 访问：`http://localhost:5173`
+
+### 5. 使用 Docker 启动（推荐）
+
+在项目根目录下执行：
+
+```bash
+docker-compose up -d
+```
+
+访问：`http://localhost:8080`
+
+### 6. 一键启动开发环境（推荐用于本地调试）
+
+为了方便本地调试，我们提供了一键启动脚本，可以同时启动前后端服务：
+
+#### Windows 用户
+
+##### 方法一：使用批处理脚本（适用于命令提示符和 PowerShell）
+
+在项目根目录下双击执行：
+
+```bash
+start_dev.bat
+```
+
+或者在命令提示符(cmd)中运行：
+
+```bash
+./start_dev.bat
+```
+
+在 PowerShell 中运行：
+
+```bash
+.\start_dev.bat
+```
+
+##### 方法二：使用 PowerShell 脚本（推荐用于 PowerShell 用户）
+
+这是专门为 PowerShell 环境优化的脚本，已测试可正常工作：
+
+在项目根目录的 PowerShell 中运行：
+
+```bash
+.\start_dev.ps1
+```
+
+**注意**：如果遇到执行策略限制，可以先运行以下命令：
+
+```bash
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+```
+
+这将允许在当前 PowerShell 会话中运行本地脚本，不会影响系统的整体执行策略。
+
+#### macOS/Linux 用户
+
+首先赋予脚本执行权限：
+
+```bash
+chmod +x start_dev.sh
+```
+
+然后在项目根目录下执行：
+
+```bash
+./start_dev.sh
+```
+
+脚本功能：
+- 自动检查并创建后端虚拟环境
+- 自动安装前后端依赖（如果不存在）
+- 同时启动后端和前端服务
+- 显示服务地址信息
+
+**注意**：首次运行脚本会安装依赖，可能需要一些时间。后续运行将直接启动服务。
 
 ## ⚙️ 依赖说明
 ### 🎬 FFmpeg
