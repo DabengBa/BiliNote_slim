@@ -64,7 +64,26 @@ cd BiliNote
 mv .env.example .env
 ```
 
-### 2. 启动后端（FastAPI）
+### 2. 一键启动开发环境（推荐）
+
+项目提供了一键启动脚本，同时运行前后端服务：
+
+```bash
+# Windows
+dev.bat
+
+# Linux / Mac
+chmod +x dev.sh
+./dev.sh
+```
+
+启动后访问：
+- 前端：`http://localhost:3015`
+- 后端：`http://localhost:8483`
+
+### 3. 手动启动（可选）
+
+#### 启动后端（FastAPI）
 
 ```bash
 cd backend
@@ -72,7 +91,7 @@ pip install -r requirements.txt
 python main.py
 ```
 
-### 3. 启动前端（Vite + React）
+#### 启动前端（Vite + React）
 
 ```bash
 cd BillNote_frontend
@@ -80,7 +99,7 @@ pnpm install
 pnpm dev
 ```
 
-访问：`http://localhost:5173`
+访问：`http://localhost:3015`
 
 ## ⚙️ 依赖说明
 ### 🎬 FFmpeg

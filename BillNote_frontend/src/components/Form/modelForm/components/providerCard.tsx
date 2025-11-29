@@ -55,6 +55,7 @@ const ProviderCard: FC<IProviderCardProps> = ({
         <Switch
           onClick={e => {
             e.preventDefault()
+            e.stopPropagation()
             handleEnable()
           }}
           checked={enable == 1}
