@@ -1,0 +1,45 @@
+[project]
+name = "bilinote-backend"
+version = "1.0.0"
+description = "BiliNote - AI Video Note Generator Backend"
+requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "-ra",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+markers = [
+    "unit: Unit tests",
+    "property: Property-based tests",
+    "integration: Integration tests",
+    "slow: Slow running tests",
+]
+
+[tool.hypothesis]
+# Default hypothesis settings
+# max_examples is configured per-test or via profile
+
+[tool.coverage.run]
+source = ["app"]
+omit = [
+    "tests/*",
+    "app/gpt/test.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
