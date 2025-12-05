@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Optional
 from urllib.parse import urlparse
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File
-from pydantic import BaseModel, validator, field_validator
+from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File, Request
+from pydantic import BaseModel, validator, field_validator, model_validator
 from dataclasses import asdict
 
 from app.db.video_task_dao import get_task_by_video
@@ -18,7 +18,7 @@ from app.services.note import NoteGenerator, logger
 from app.utils.response import ResponseWrapper as R
 from app.utils.url_parser import extract_video_id
 from app.validators.video_url_validator import is_supported_video_url
-from fastapi import APIRouter, Request, HTTPException
+from app.utils.platform_detector import detect_platform, PlatformDetectionError
 from fastapi.responses import StreamingResponse
 import httpx
 from app.enmus.task_status_enums import TaskStatus
@@ -36,7 +36,7 @@ class RecordRequest(BaseModel):
 
 class VideoRequest(BaseModel):
     video_url: str
-    platform: str
+    platform: Optional[str] = None  # 新版本：platform字段变为可选
     quality: DownloadQuality
     screenshot: Optional[bool] = False
     link: Optional[bool] = False
@@ -61,6 +61,30 @@ class VideoRequest(BaseModel):
             pass
 
         return v
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_and_detect_platform(cls, data):
+        # 如果data是字典类型
+        if isinstance(data, dict):
+            platform = data.get("platform")
+            video_url = data.get("video_url")
+            
+            # 如果用户显式提供了platform字段，则使用用户提供的值
+            if platform is not None:
+                return data
+                
+            # 如果没有提供platform字段，则从video_url自动检测
+            if video_url:
+                try:
+                    platform_info = detect_platform(video_url)
+                    data["platform"] = platform_info.platform
+                except PlatformDetectionError as e:
+                    # 重新抛出业务异常，前端会收到结构化的错误响应
+                    from app.exceptions.biz_exception import BizException
+                    raise BizException(str(e), "PLATFORM_DETECTION_FAILED")
+        
+        return data
 
 
 NOTE_OUTPUT_DIR = os.getenv("NOTE_OUTPUT_DIR", "note_results")
@@ -136,7 +160,9 @@ def generate_note(data: VideoRequest, background_tasks: BackgroundTasks):
         generator = NoteGenerator()
         generator._get_downloader(data.platform)
 
-        video_id = extract_video_id(data.video_url, data.platform)
+        # 使用detect_platform获取PlatformInfo对象
+        platform_info = detect_platform(data.video_url)
+        video_id = extract_video_id(platform_info)
         # if not video_id:
         #     raise HTTPException(status_code=400, detail="无法提取视频 ID")
         # existing = get_task_by_video(video_id, data.platform)

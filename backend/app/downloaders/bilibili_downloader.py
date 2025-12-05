@@ -8,6 +8,7 @@ from app.downloaders.base import Downloader, DownloadQuality, QUALITY_MAP
 from app.models.notes_model import AudioDownloadResult
 from app.utils.path_helper import get_data_dir
 from app.utils.url_parser import extract_video_id
+from app.utils.platform_detector import detect_platform
 
 
 class BilibiliDownloader(Downloader, ABC):
@@ -75,7 +76,8 @@ class BilibiliDownloader(Downloader, ABC):
             output_dir = get_data_dir()
         os.makedirs(output_dir, exist_ok=True)
         print("video_url",video_url)
-        video_id=extract_video_id(video_url, "bilibili")
+        platform_info = detect_platform(video_url)
+        video_id=extract_video_id(platform_info)
         video_path = os.path.join(output_dir, f"{video_id}.mp4")
         if os.path.exists(video_path):
             return video_path

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd.exe /c:*)",
+      "Bash(curl:*)",
+      "Bash(source:*)",
+      "Bash(python:*)",
+      "Bash(npm run dev)",
+      "Bash(npx vite)",
+      "Bash(netstat:*)",
+      "Bash(powershell.exe -Command \"cd BillNote_frontend; npm run dev 2>&1\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

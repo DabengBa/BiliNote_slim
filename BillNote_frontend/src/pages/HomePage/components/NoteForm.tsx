@@ -8,7 +8,7 @@ import {
   FormMessage,
 } from '@/components/ui/form.tsx'
 import { useEffect,useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm, useWatch, FieldErrors } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
@@ -18,6 +18,9 @@ import { generateNote } from '@/services/note.ts'
 import { uploadFile } from '@/services/upload.ts'
 import { useTaskStore } from '@/store/taskStore'
 import { useModelStore } from '@/store/modelStore'
+import { detectPlatformFromUrl } from '@/utils/urlUtils'
+import { addPlatformSourceToForm, validateFormDataWithSource } from '@/utils/platformSourceHandler'
+import PlatformDetectionAlert from '@/components/PlatformDetectionAlert.tsx'
 import {
   Tooltip,
   TooltipContent,
@@ -51,7 +54,7 @@ import { useNavigate } from 'react-router-dom'
 const formSchema = z
   .object({
     video_url: z.string().optional(),
-    platform: z.string().nonempty('请选择平台'),
+    platform: z.string().optional(),
     quality: z.enum(['fast', 'medium', 'slow']),
     screenshot: z.boolean().optional(),
     link: z.boolean().optional(),
@@ -196,6 +199,7 @@ const NoteForm = () => {
 
   /* ---- 派生状态（只 watch 一次，提高性能） ---- */
   const platform = useWatch({ control: form.control, name: 'platform' }) as string
+  const videoUrl = useWatch({ control: form.control, name: 'video_url' }) as string
   const videoUnderstandingEnabled = useWatch({ control: form.control, name: 'video_understanding' })
   const editing = currentTask && currentTask.id
 
@@ -208,6 +212,31 @@ const NoteForm = () => {
 
     return
   }, [])
+  
+  // T008: URL变化时自动检测平台
+  useEffect(() => {
+    if (!videoUrl || videoUrl.trim() === '') {
+      return
+    }
+    
+    // 避免在编辑模式下自动改变platform
+    if (editing) {
+      return
+    }
+    
+    const detectedPlatform = detectPlatformFromUrl(videoUrl)
+    
+    // 只有当检测到的平台不是unknown时才自动填充
+    if (detectedPlatform !== 'unknown') {
+      const currentPlatform = form.getValues('platform')
+      
+      // 只有当当前platform为空或者与检测结果不同时才更新
+      if (!currentPlatform || currentPlatform !== detectedPlatform) {
+        form.setValue('platform', detectedPlatform)
+        console.log(`URL平台自动识别: ${videoUrl} -> ${detectedPlatform}`)
+      }
+    }
+  }, [videoUrl, editing, form])
   useEffect(() => {
     if (!currentTask) return
     const { formData } = currentTask
@@ -260,12 +289,27 @@ const NoteForm = () => {
   }
 
   const onSubmit = async (values: NoteFormValues) => {
-    console.log('Not even go here')
-    const payload: NoteFormValues = {
-      ...values,
+    console.log('表单提交数据:', values)
+    
+    // T008b: 添加platform_source信息
+    const formDataWithSource = addPlatformSourceToForm(values)
+    console.log('添加platform_source后的数据:', formDataWithSource)
+    
+    // T008b: 验证表单数据和platform_source
+    const validation = validateFormDataWithSource(formDataWithSource)
+    if (!validation.isValid) {
+      console.error('platform_source验证失败:', validation.errors)
+      // 可以显示错误提示给用户
+      validation.errors.forEach(error => console.error('-', error))
+      return
+    }
+
+    const payload: NoteFormValues & { platform_source?: string } = {
+      ...formDataWithSource,
       provider_id: modelList.find(m => m.model_name === values.model_name)!.provider_id,
       task_id: currentTaskId || '',
     }
+    
     if (currentTaskId) {
       retryTask(currentTaskId, payload)
       return
@@ -379,6 +423,18 @@ const NoteForm = () => {
               )}
             />
           </div>
+
+          {/* T008a: 平台检测失败时的提示组件 */}
+          {videoUrl && platform === 'unknown' && (
+            <PlatformDetectionAlert
+              url={videoUrl}
+              detectedPlatform={platform}
+              onPlatformSelect={(selectedPlatform) => {
+                form.setValue('platform', selectedPlatform)
+                console.log('用户手动选择平台:', selectedPlatform)
+              }}
+            />
+          )}
 
           <FormField
             control={form.control}
